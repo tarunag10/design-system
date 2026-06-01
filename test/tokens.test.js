@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   componentPatterns,
   contrastPair,
+  createComponentRecipe,
   createTokenExport,
   filterComponentInventory,
   getContrastSummary,
@@ -70,4 +71,25 @@ test('serializes component shortlist safely for localStorage', () => {
   assert.deepEqual(parseSavedShortlist(saved, componentPatterns), ['Risk card', 'Document upload']);
   assert.deepEqual(parseSavedShortlist('["Missing pattern"]', componentPatterns), []);
   assert.deepEqual(parseSavedShortlist('{broken', componentPatterns), []);
+});
+
+test('creates implementation recipes with accessibility, retention, and token guidance', () => {
+  const recipe = createComponentRecipe(componentPatterns.find((pattern) => pattern.name === 'Document upload'));
+
+  assert.equal(recipe.title, 'Document upload implementation recipe');
+  assert.ok(recipe.checklist.some((item) => item.category === 'Accessibility' && item.text.includes('label')));
+  assert.ok(recipe.checklist.some((item) => item.category === 'Evidence and retention' && item.text.includes('retention')));
+  assert.ok(recipe.tokenReferences.includes('--color-blue'));
+  assert.ok(recipe.tokenReferences.includes('--focus-outline'));
+});
+
+test('formats component recipes as copyable markdown and plain text', () => {
+  const recipe = createComponentRecipe(componentPatterns.find((pattern) => pattern.name === 'Risk card'));
+
+  assert.ok(recipe.markdown.startsWith('# Risk card implementation recipe'));
+  assert.ok(recipe.markdown.includes('## Accessibility requirements'));
+  assert.ok(recipe.markdown.includes('- [ ] Do not rely on colour alone'));
+  assert.ok(recipe.markdown.includes('Token references:'));
+  assert.ok(recipe.plain.includes('Risk card implementation recipe'));
+  assert.ok(recipe.plain.includes('Evidence and retention'));
 });

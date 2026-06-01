@@ -114,6 +114,139 @@ export function createTokenExport(tokenSet = tokens) {
   };
 }
 
+const baseAccessibilityRequirements = [
+  'Use semantic HTML before adding ARIA.',
+  'Keep visible labels, instructions, and error recovery next to the control or component.',
+  'Preserve keyboard order and the visible focus indicator.'
+];
+
+const recipeRequirementsByName = {
+  'Risk card': [
+    'Do not rely on colour alone for risk level or deadline state.',
+    'Use a heading that names the risk and include the next action in text.'
+  ],
+  'Client intake': [
+    'Use fieldsets and legends for grouped safe-contact and consent questions.',
+    'Ask communication needs before long free-text sections.'
+  ],
+  'Document upload': [
+    'Connect the file input label, accepted formats, size limit, and error text with aria-describedby.',
+    'Provide a non-digital fallback route before upload failure states.'
+  ],
+  'Complaint timeline': [
+    'Use an ordered list and machine-readable time elements for dated events.',
+    'Include responsible organisation and current stage in text.'
+  ],
+  'Escalation panel': [
+    'Use an aside only when the panel supports the surrounding task.',
+    'Include emergency or regulated-help signposting as plain text.'
+  ]
+};
+
+function tokenNamesForRecipe(pattern = {}) {
+  const shared = ['--color-text', '--color-background', '--color-line', '--focus-outline', '--focus-offset'];
+  const byType = {
+    risk: ['--color-red', '--color-amber'],
+    escalation: ['--color-blue', '--color-red'],
+    intake: ['--color-blue', '--space-md'],
+    document: ['--color-blue', '--space-md'],
+    timeline: ['--color-muted', '--space-lg']
+  };
+  const typed = (pattern.types || []).flatMap((type) => byType[type] || []);
+
+  return [...new Set([...shared, ...typed, '--radius-card', '--radius-control'])];
+}
+
+function checklistForPattern(pattern = {}) {
+  return [
+    ...baseAccessibilityRequirements.map((text) => ({ category: 'Accessibility', text })),
+    ...(recipeRequirementsByName[pattern.name] || []).map((text) => ({ category: 'Accessibility', text })),
+    {
+      category: 'Evidence and retention',
+      text: 'Record keyboard, screen-reader, colour-contrast, and error-state evidence before release.'
+    },
+    {
+      category: 'Evidence and retention',
+      text: 'Name the retention policy for user evidence, how long it is kept, and the fallback route when digital evidence is unavailable.'
+    },
+    {
+      category: 'Tokens',
+      text: `Use token references ${tokenNamesForRecipe(pattern).join(', ')} instead of one-off component values.`
+    }
+  ];
+}
+
+function recipeSectionTitle(category) {
+  if (category === 'Accessibility') return 'Accessibility requirements';
+  if (category === 'Evidence and retention') return 'Evidence and retention';
+  return 'Token references';
+}
+
+function groupChecklist(checklist) {
+  return ['Accessibility', 'Evidence and retention', 'Tokens']
+    .map((category) => ({
+      category,
+      heading: recipeSectionTitle(category),
+      items: checklist.filter((item) => item.category === category)
+    }))
+    .filter((group) => group.items.length);
+}
+
+function formatRecipeMarkdown(title, pattern, groups, tokenReferences) {
+  const lines = [
+    `# ${title}`,
+    '',
+    pattern.usage || pattern.detail || '',
+    ''
+  ];
+
+  for (const group of groups) {
+    lines.push(`## ${group.heading}`);
+    for (const item of group.items) {
+      lines.push(`- [ ] ${item.text}`);
+    }
+    lines.push('');
+  }
+
+  lines.push('Token references:');
+  tokenReferences.forEach((token) => lines.push(`- \`${token}\``));
+  lines.push('', 'Starter snippet:', '```html', pattern.snippet || '', '```');
+
+  return `${lines.join('\n').trimEnd()}\n`;
+}
+
+function formatRecipePlain(title, pattern, groups, tokenReferences) {
+  const lines = [title, pattern.usage || pattern.detail || '', ''];
+
+  for (const group of groups) {
+    lines.push(group.heading);
+    group.items.forEach((item, index) => lines.push(`${index + 1}. ${item.text}`));
+    lines.push('');
+  }
+
+  lines.push(`Token references: ${tokenReferences.join(', ')}`);
+  lines.push(`Starter snippet: ${pattern.snippet || ''}`);
+
+  return `${lines.join('\n').trimEnd()}\n`;
+}
+
+export function createComponentRecipe(pattern = {}) {
+  const title = `${pattern.name || 'Component'} implementation recipe`;
+  const checklist = checklistForPattern(pattern);
+  const groups = groupChecklist(checklist);
+  const tokenReferences = tokenNamesForRecipe(pattern);
+
+  return {
+    title,
+    patternName: pattern.name || 'Component',
+    checklist,
+    groups,
+    tokenReferences,
+    markdown: formatRecipeMarkdown(title, pattern, groups, tokenReferences),
+    plain: formatRecipePlain(title, pattern, groups, tokenReferences)
+  };
+}
+
 export function serializeSavedShortlist(names = []) {
   const uniqueNames = [...new Set(names.filter((name) => typeof name === 'string' && name.trim()))];
   return JSON.stringify(uniqueNames);
