@@ -6,6 +6,7 @@ import {
   createComponentRecipe,
   createDesignSystemHandoff,
   createTokenExport,
+  currentGuidance,
   filterComponentInventory,
   getContrastSummary,
   parseSavedShortlist,
@@ -101,8 +102,17 @@ test('creates a design system handoff with tokens and component recipes', () => 
   assert.equal(handoff.title, 'Open Access design system handoff');
   assert.match(handoff.markdown, /^# Open Access design system handoff/m);
   assert.match(handoff.markdown, /## Release checks/);
+  assert.match(handoff.markdown, /Current source notes/);
+  assert.match(handoff.markdown, /WCAG 2\.2 AA/);
   assert.match(handoff.markdown, /```css/);
   assert.match(handoff.markdown, /--color-blue/);
   assert.match(handoff.markdown, /### Risk card/);
   assert.match(handoff.markdown, /### Client intake/);
+});
+
+test('exposes current design and accessibility guidance sources', () => {
+  assert.equal(currentGuidance.length, 4);
+  assert.ok(currentGuidance.some((item) => item.detail.includes('v6.1.0')));
+  assert.ok(currentGuidance.some((item) => item.detail.includes('WCAG 2.2')));
+  assert.ok(currentGuidance.every((item) => item.url.startsWith('https://')));
 });

@@ -3,6 +3,7 @@ import {
   createComponentRecipe,
   createDesignSystemHandoff,
   createTokenExport,
+  currentGuidance,
   filterComponentInventory,
   getContrastSummary,
   parseSavedShortlist,
@@ -14,6 +15,7 @@ const tokensMount = document.querySelector('#tokens');
 const patternMount = document.querySelector('#patterns');
 const patternFiltersMount = document.querySelector('#pattern-filters');
 const contrastMount = document.querySelector('#contrast');
+const currentGuidanceMount = document.querySelector('#current-guidance');
 const shortlistStorageKey = 'open-access-uk.component-shortlist';
 let savedShortlist = loadSavedShortlist();
 
@@ -91,6 +93,14 @@ function renderPatterns() {
   }).join('');
 }
 
+function renderCurrentGuidance() {
+  currentGuidanceMount.innerHTML = currentGuidance.map((item) => `<article class="card">
+    <h3>${escapeHtml(item.title)}</h3>
+    <p>${escapeHtml(item.detail)}</p>
+    <a href="${escapeHtml(item.url)}" rel="noreferrer">${escapeHtml(item.source)}</a>
+  </article>`).join('');
+}
+
 function loadSavedShortlist() {
   try {
     return parseSavedShortlist(localStorage.getItem(shortlistStorageKey), componentPatterns);
@@ -135,6 +145,7 @@ async function copyText(value) {
 
 renderPatternFilters();
 renderPatterns();
+renderCurrentGuidance();
 patternFiltersMount.addEventListener('change', renderPatterns);
 tokensMount.addEventListener('click', async (event) => {
   const exported = createTokenExport(tokens);

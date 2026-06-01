@@ -17,6 +17,33 @@ export const tokens = {
   focus: { outline: '4px solid #ffdd00', offset: '2px' }
 };
 
+export const currentGuidance = [
+  {
+    title: 'WCAG 2.2 AA is the current public-sector target',
+    detail: 'GOV.UK accessibility guidance says public sector websites and apps should meet WCAG 2.2 level AA unless a valid exception applies.',
+    source: 'GOV.UK accessibility requirements',
+    url: 'https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps'
+  },
+  {
+    title: 'Design systems still need service testing',
+    detail: 'The GOV.UK Design System accessibility strategy says compliant components help, but the full service still needs accessible research, design, development and testing.',
+    source: 'GOV.UK Design System accessibility strategy',
+    url: 'https://design-system.service.gov.uk/accessibility/accessibility-strategy/'
+  },
+  {
+    title: 'GOV.UK Frontend is actively maintained',
+    detail: 'The GOV.UK Design System homepage notes GOV.UK Frontend v6.1.0 was released on 2 March 2026, useful context for teams checking dependency freshness.',
+    source: 'GOV.UK Design System',
+    url: 'https://design-system.service.gov.uk/'
+  },
+  {
+    title: 'Contrast remains a named WCAG check',
+    detail: 'GOV.UK colour guidance ties text and interactive element contrast to WCAG 2.2 success criterion 1.4.3 Contrast (Minimum), level AA.',
+    source: 'GOV.UK Design System colour',
+    url: 'https://design-system.service.gov.uk/styles/colour/'
+  }
+];
+
 function luminance(hex) {
   const rgb = hex.match(/[a-f0-9]{2}/gi)
     .map((value) => parseInt(value, 16) / 255)
@@ -262,6 +289,10 @@ export function createDesignSystemHandoff(patterns = componentPatterns, tokenSet
       '- [ ] Use semantic HTML before ARIA.',
       '- [ ] Verify keyboard focus, contrast, labels, errors, and reduced-motion behaviour.',
       '- [ ] Record evidence and retention notes for user-submitted documents.',
+      '- [ ] Check current WCAG 2.2 AA expectations and publish/update an accessibility statement where required.',
+      '',
+      '## Current source notes',
+      ...currentGuidance.map((item) => `- ${item.title}: ${item.detail} Source: ${item.url}`),
       '',
       '## CSS tokens',
       '```css',
