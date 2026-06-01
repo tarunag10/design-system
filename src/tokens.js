@@ -90,3 +90,43 @@ export function filterComponentInventory(components, filters = {}) {
   const type = filters.type && filters.type !== 'all' ? filters.type : null;
   return components.filter((component) => !type || (component.types || []).includes(type));
 }
+
+function flattenTokenEntries(tokenSet, prefix = []) {
+  return Object.entries(tokenSet).flatMap(([key, value]) => {
+    const path = [...prefix, key];
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return flattenTokenEntries(value, path);
+    }
+
+    return [{ name: `--${path.join('-')}`, value }];
+  });
+}
+
+export function createTokenExport(tokenSet = tokens) {
+  const declarations = flattenTokenEntries(tokenSet)
+    .map((item) => `  ${item.name}: ${item.value};`)
+    .join('\n');
+
+  return {
+    filename: 'open-access-uk-tokens.json',
+    css: `:root {\n${declarations}\n}\n`,
+    json: `${JSON.stringify(tokenSet, null, 2)}\n`
+  };
+}
+
+export function serializeSavedShortlist(names = []) {
+  const uniqueNames = [...new Set(names.filter((name) => typeof name === 'string' && name.trim()))];
+  return JSON.stringify(uniqueNames);
+}
+
+export function parseSavedShortlist(value, components = componentPatterns) {
+  try {
+    const parsed = JSON.parse(value || '[]');
+    if (!Array.isArray(parsed)) return [];
+
+    const allowedNames = new Set(components.map((component) => component.name));
+    return [...new Set(parsed.filter((name) => typeof name === 'string' && allowedNames.has(name)))];
+  } catch {
+    return [];
+  }
+}

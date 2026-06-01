@@ -9,6 +9,9 @@ Accessible components, tokens, and public-service UI patterns for LegalTech and 
 - Component inventory metadata for risk cards, client intake, document upload, complaint timelines, and escalation panels
 - Copyable HTML snippets and usage notes for each component pattern
 - `filterComponentInventory(components, { type })` for filtering by `intake`, `document`, `timeline`, `escalation`, or `risk`
+- `createTokenExport(tokens)` for CSS custom properties and formatted JSON token exports
+- `serializeSavedShortlist(names)` and `parseSavedShortlist(value, components)` for localStorage-safe component favourites
+- Demo controls for copying CSS tokens, downloading JSON tokens, and saving component shortlist items locally
 - Static demo rendering in `src/app.js`, with no backend or analytics dependency
 
 ## Design principles
