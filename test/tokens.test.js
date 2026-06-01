@@ -4,6 +4,7 @@ import {
   componentPatterns,
   contrastPair,
   createComponentRecipe,
+  createDesignSystemHandoff,
   createTokenExport,
   filterComponentInventory,
   getContrastSummary,
@@ -92,4 +93,16 @@ test('formats component recipes as copyable markdown and plain text', () => {
   assert.ok(recipe.markdown.includes('Token references:'));
   assert.ok(recipe.plain.includes('Risk card implementation recipe'));
   assert.ok(recipe.plain.includes('Evidence and retention'));
+});
+
+test('creates a design system handoff with tokens and component recipes', () => {
+  const handoff = createDesignSystemHandoff(componentPatterns.slice(0, 2), tokens);
+
+  assert.equal(handoff.title, 'Open Access design system handoff');
+  assert.match(handoff.markdown, /^# Open Access design system handoff/m);
+  assert.match(handoff.markdown, /## Release checks/);
+  assert.match(handoff.markdown, /```css/);
+  assert.match(handoff.markdown, /--color-blue/);
+  assert.match(handoff.markdown, /### Risk card/);
+  assert.match(handoff.markdown, /### Client intake/);
 });

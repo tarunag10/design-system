@@ -1,6 +1,7 @@
 import {
   componentPatterns,
   createComponentRecipe,
+  createDesignSystemHandoff,
   createTokenExport,
   filterComponentInventory,
   getContrastSummary,
@@ -28,6 +29,7 @@ function escapeHtml(value = '') {
 
 tokensMount.innerHTML = `<div class="token-actions">
   <button type="button" class="secondary" id="copy-css-tokens">Copy CSS tokens</button>
+  <button type="button" class="secondary" id="copy-design-handoff">Copy design handoff</button>
   <button type="button" class="secondary" id="download-json-tokens">Download JSON tokens</button>
 </div>
 ${Object.entries(tokens.color).map(([name, value]) => `
@@ -144,6 +146,11 @@ tokensMount.addEventListener('click', async (event) => {
 
   if (event.target.closest('#download-json-tokens')) {
     downloadJson(exported.filename, exported.json);
+  }
+
+  if (event.target.closest('#copy-design-handoff')) {
+    await copyText(createDesignSystemHandoff(componentPatterns, tokens).markdown);
+    event.target.textContent = 'Copied';
   }
 });
 

@@ -247,6 +247,41 @@ export function createComponentRecipe(pattern = {}) {
   };
 }
 
+export function createDesignSystemHandoff(patterns = componentPatterns, tokenSet = tokens) {
+  const exported = createTokenExport(tokenSet);
+  const recipes = patterns.map((pattern) => createComponentRecipe(pattern));
+
+  return {
+    title: 'Open Access design system handoff',
+    markdown: [
+      '# Open Access design system handoff',
+      '',
+      'Generated locally in the browser. Nothing was sent to a server.',
+      '',
+      '## Release checks',
+      '- [ ] Use semantic HTML before ARIA.',
+      '- [ ] Verify keyboard focus, contrast, labels, errors, and reduced-motion behaviour.',
+      '- [ ] Record evidence and retention notes for user-submitted documents.',
+      '',
+      '## CSS tokens',
+      '```css',
+      exported.css.trim(),
+      '```',
+      '',
+      '## Component recipes',
+      ...recipes.flatMap((recipe) => [
+        `### ${recipe.patternName}`,
+        ...recipe.groups.flatMap((group) => [
+          `#### ${group.heading}`,
+          ...group.items.map((item) => `- [ ] ${item.text}`)
+        ]),
+        `Tokens: ${recipe.tokenReferences.join(', ')}`,
+        ''
+      ])
+    ].join('\n')
+  };
+}
+
 export function serializeSavedShortlist(names = []) {
   const uniqueNames = [...new Set(names.filter((name) => typeof name === 'string' && name.trim()))];
   return JSON.stringify(uniqueNames);
