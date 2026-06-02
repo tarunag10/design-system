@@ -5,6 +5,7 @@ import {
   contrastPair,
   createComponentRecipe,
   createDesignSystemHandoff,
+  createLocalActionPack,
   createTokenExport,
   currentGuidance,
   filterComponentInventory,
@@ -108,6 +109,29 @@ test('creates a design system handoff with tokens and component recipes', () => 
   assert.match(handoff.markdown, /--color-blue/);
   assert.match(handoff.markdown, /### Risk card/);
   assert.match(handoff.markdown, /### Client intake/);
+});
+
+test('creates local action packs for shortlisted design patterns', () => {
+  const pack = createLocalActionPack(
+    componentPatterns,
+    ['Document upload', 'Escalation panel'],
+    { service: 'Housing repairs triage' }
+  );
+
+  assert.equal(pack.title, 'Housing repairs triage local action pack');
+  assert.deepEqual(pack.patternNames, ['Document upload', 'Escalation panel']);
+  assert.deepEqual(pack.sections.map((section) => section.heading), [
+    'Pattern decisions',
+    'Local handoff',
+    'Review evidence'
+  ]);
+  assert.ok(pack.sections[0].items.some((item) => item.includes('Document upload')));
+  assert.ok(pack.sections[1].items.some((item) => item.includes('Service owner')));
+  assert.ok(pack.tokenReferences.includes('--color-blue'));
+  assert.ok(pack.tokenReferences.includes('--focus-outline'));
+  assert.match(pack.markdown, /^# Housing repairs triage local action pack/m);
+  assert.match(pack.markdown, /Generated locally in the browser/);
+  assert.match(pack.markdown, /Keyboard and focus evidence/);
 });
 
 test('exposes current design and accessibility guidance sources', () => {

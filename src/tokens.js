@@ -313,6 +313,71 @@ export function createDesignSystemHandoff(patterns = componentPatterns, tokenSet
   };
 }
 
+function formatLocalActionPackMarkdown(title, sections, tokenReferences) {
+  const lines = [
+    `# ${title}`,
+    '',
+    'Generated locally in the browser. Nothing was sent to a server.',
+    ''
+  ];
+
+  for (const section of sections) {
+    lines.push(`## ${section.heading}`);
+    section.items.forEach((item) => lines.push(`- [ ] ${item}`));
+    lines.push('');
+  }
+
+  lines.push('## Token references');
+  tokenReferences.forEach((token) => lines.push(`- \`${token}\``));
+
+  return `${lines.join('\n').trimEnd()}\n`;
+}
+
+export function createLocalActionPack(patterns = componentPatterns, selectedNames = [], options = {}) {
+  const allowedNames = new Set(patterns.map((pattern) => pattern.name));
+  const selected = [...new Set(selectedNames)]
+    .filter((name) => allowedNames.has(name))
+    .map((name) => patterns.find((pattern) => pattern.name === name));
+  const packPatterns = selected.length ? selected : patterns.slice(0, 3);
+  const serviceName = typeof options.service === 'string' && options.service.trim()
+    ? options.service.trim()
+    : 'Open Access service';
+  const title = `${serviceName} local action pack`;
+  const tokenReferences = [...new Set(packPatterns.flatMap(tokenNamesForRecipe))];
+  const sections = [
+    {
+      heading: 'Pattern decisions',
+      items: packPatterns.map((pattern) => `${pattern.name}: ${pattern.usage || pattern.detail}`)
+    },
+    {
+      heading: 'Local handoff',
+      items: [
+        'Service owner: confirm the user journey, responsible team, emergency route, and regulated-advice boundary.',
+        'Design reviewer: check the selected patterns against real content, narrow screens, and keyboard order.',
+        'Developer: implement with shared tokens first, then record any one-off CSS as a release risk.',
+        'Content reviewer: replace placeholder service wording with local eligibility, retention, and fallback-route copy.'
+      ]
+    },
+    {
+      heading: 'Review evidence',
+      items: [
+        'Keyboard and focus evidence for every selected pattern.',
+        'Contrast evidence for text, status, error, and focus states.',
+        'Screen-reader notes for labels, headings, ordered timelines, uploads, and escalation panels as applicable.',
+        'Retention and non-digital fallback evidence for any pattern that collects or references documents.'
+      ]
+    }
+  ];
+
+  return {
+    title,
+    patternNames: packPatterns.map((pattern) => pattern.name),
+    tokenReferences,
+    sections,
+    markdown: formatLocalActionPackMarkdown(title, sections, tokenReferences)
+  };
+}
+
 export function serializeSavedShortlist(names = []) {
   const uniqueNames = [...new Set(names.filter((name) => typeof name === 'string' && name.trim()))];
   return JSON.stringify(uniqueNames);
