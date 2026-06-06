@@ -1,3 +1,4 @@
+import { initTheme } from './theme.js';
 import {
   componentPatterns,
   createComponentRecipe,
@@ -199,4 +200,15 @@ patternMount.addEventListener('click', async (event) => {
 
   await copyText(button.dataset.snippet);
   button.textContent = 'Copied';
+});
+
+initTheme('#theme-toggle');
+
+// Mobile nav toggle (matches shared component behaviour)
+const navToggle = document.querySelector('.nav-toggle');
+const primaryNav = document.querySelector('#primary-nav');
+navToggle?.addEventListener('click', () => {
+  const open = navToggle.getAttribute('aria-expanded') !== 'true';
+  navToggle.setAttribute('aria-expanded', String(open));
+  primaryNav?.classList.toggle('is-open', open);
 });
