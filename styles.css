@@ -18,3 +18,17 @@
   gap: var(--space-3);
   margin-bottom: var(--space-5);
 }
+
+.token-playground {
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--paper-2);
+  display: grid;
+  gap: var(--space-3);
+}
+#pg-preview button {
+  background: var(--accent);
+  border-radius: var(--radius-md);
+}

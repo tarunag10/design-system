@@ -204,7 +204,20 @@ patternMount.addEventListener('click', async (event) => {
 
 initTheme('#theme-toggle');
 
-// Mobile nav toggle (matches shared component behaviour)
+const pgAccent = document.querySelector('#pg-accent');
+const pgRadius = document.querySelector('#pg-radius');
+const pgPreview = document.querySelector('#pg-preview');
+
+function applyPlayground() {
+  if (!pgPreview) return;
+  if (pgAccent) pgPreview.style.setProperty('--accent', pgAccent.value);
+  if (pgRadius) pgPreview.style.setProperty('--radius-md', `${pgRadius.value}px`);
+}
+
+pgAccent?.addEventListener('input', applyPlayground);
+pgRadius?.addEventListener('input', applyPlayground);
+applyPlayground();
+
 const navToggle = document.querySelector('.nav-toggle');
 const primaryNav = document.querySelector('#primary-nav');
 navToggle?.addEventListener('click', () => {
